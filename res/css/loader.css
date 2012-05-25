@@ -1,0 +1,44 @@
+#page {
+	
+}
+#loading-mask{
+	background-color: white;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	z-index: 20000;
+}
+#loading{
+	height: auto;
+	position: absolute;
+	left: 45%;
+	top: 40%;
+	padding: 2px;
+	z-index: 20001;
+}
+#loading a {
+	color: #ff8000;
+	font-size: 9px;
+}
+#loading .loading-indicator{
+	background: white;
+	color: #C3201B;
+	font: bold 13px Helvetica, Arial, sans-serif;
+	height: auto;
+	margin: 0;
+	padding: 0px;
+}
+#loading-msg {
+	color: #999;
+	font-size: 10px;
+	font-weight: normal;
+}
+#loading-info {
+	color: #333;
+	float: left;
+	top: 30px;
+	left: 8px;
+	position: relative;
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	
+	<title>DOM - Distribution and Object Mapping v1.0</title>
+	
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	
+	<link rel="shortcut icon" href="favicon_32x32.ico" />
+	<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+	<link rel="stylesheet" type="text/css" href="res/css/loader.css">
+	<link rel="stylesheet" type="text/css" href="res/css/toolbars.css">
+</head>
+
+<body>
+	<div id="loading-mask"></div>
+    <div id="loading">
+        <div class="loading-indicator">
+            <img src="res/img/system/logo.png" width="106" height="107" style="margin-right: 8px; float: left; vertical-align: top;"/>
+			<div id="loading-info">
+				Distributions and Objects Mapping <a href="#">v0.1 Aplha</a><br />
+				<span id="loading-msg">Loading user interfaces, modules and data...</span>
+			</div>
+        </div>
+    </div>
+	
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript">window.jQuery || document.write('<script src="core/js/jquery-1.7.2.min.js"><\/script>')</script>
+	<!--[if lt IE 7 ]>
+		<script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+		<script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+	<![endif]-->
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+	<script src="core/js/jquery.hoverizr.min.js"></script>
+	<script type="text/javascript" src="core/js/gmap3/gmap3.js"></script>
+	
+	<link rel="stylesheet" href="res/css/style.css">
+	
+	<link rel="stylesheet" type="text/css" href="core/js/extjs/resources/css/ext-all.css" />
+    <script type="text/javascript" src="core/js/extjs/bootstrap.js"></script>
+	<script type="text/javascript" src="core/layout.js"></script>
+	<script type="text/javascript" src="core/init.js"></script>
+	
+	<style type="text/css">
+		/** hack the extjs pressed background button **/
+		.x-btn-default-toolbar-large-menu-active, .x-btn-default-toolbar-medium-menu-active, .x-btn-default-toolbar-small-menu-active,
+		.x-btn-default-toolbar-large-pressed, .x-btn-default-toolbar-medium-pressed, .x-btn-default-toolbar-small-pressed {
+			background-image: -moz-linear-gradient(center top , #FFFAE1, #FFD66A 48%, #FCB743  52%, #FFF8B5);
+			background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #FFFAE1), color-stop(48%, #FFD66A), color-stop(52%, #FCB743), color-stop(100%, #FFF8B5));
+			background-image: linear-gradient(top, #FFFAE1,#FFD66A 48%,#FCB743 52%,#FFF8B5);
+			border-color: #F9AE52;
+		}
+		.ui-menu .ui-menu-item{
+			text-align: left;  
+			font-weight: normal;
+		}
+		.ui-menu .ui-menu-item a.ui-state-hover{
+			border: 1px solid red; 
+			background: #FFBFBF; 
+			color: black;
+			font-weight:bold;
+		}
+	</style>
+	
+	<div id="main-content" class="map-content-wrap">
+		<button id="startmenu_btn" class="startmenu" style="height:80px; top:6px; right:33px; position:absolute; z-index:2;">
+			<span class="highlight"></span>
+			<span class="text"><img src="res/img/system/menu-orb.png" border="0" alt="Start.."><br>Start</span>
+		</button>
+		<div id="startmenu_pnl" class="startmenu" style="width:184px; height:auto; top:90px; right:12px; position:absolute; z-index:1;">
+			<div class="startmenu-bar" id="startmenu_bar" style="width: 100%; height: 100%; margin: 0; padding: 0;"></div>
+		</div>
+		<div id="map_canvas" class="gmap3"></div>
+	</div>
+</body>
+</html>
