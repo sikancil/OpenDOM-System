@@ -1,3 +1,7 @@
+String.prototype.toProperCase = function () {
+	return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
 Ext.onReady(function(){
 	/**
 	 * jQuery:
@@ -89,11 +93,11 @@ Ext.onReady(function(){
 			scrollwheel: true
 		}
 	});
-	/**
-	 * jQuery GMap3:
-	 * Get the GoogleMaps Element for direct actions
-	 * var map = $('#map_canvas').gmap3('get');
-	 */
+	var map = $("#map_canvas").gmap3('get');
+	$('body').append('<div id="capLatLng" style="width:auto; padding:2px 2px 2px 2px; background:rgba(255,255,255,0.3); bottom:0px; left:25%; right:25%; position:absolute; text-align:center; font-size:10px; font-weight:bold; border-radius:3px; color:#666;">(0,0)</div>');
+	google.maps.event.addListener(map, 'mousemove', function(event) {
+		$('#capLatLng').html(event.latLng.toString());
+	});
 	
 	/**
 	 * jQuery:
@@ -151,62 +155,173 @@ Ext.onReady(function(){
 	 */
 	var elToolSearch = Ext.getCmp('tbtn_ToolSearch');
 	elToolSearch.on('click', function(){
-		Ext.Msg.prompt('Search Location', 'Please enter location name:', function(btn, text){
-			if (btn == 'ok'){
-				$('#map_canvas').gmap3({
-					action: 'getAddress',
-					address: text,
-					callback: function(results){
-						if (!results) return;
-						
-						var zoomBestFit = 10;
-						$("#map_canvas").gmap3(
-							{	action: 'getMaxZoom',
-								latLng: results[0].geometry.location,
-								callback: function(zoom){ zoomBestFit = zoom; }
-							},
-							{	action: 'clear',
-								name:'marker'
-							},
-							{	action: 'addMarker',
-								latLng: results[0].geometry.location,
-								map: { center: true, zoom: zoomBestFit }
-							}
-						);
-					}
-				});
-			}
+		this.toggle(!this.pressed, false);
+		
+		var dataSearchLoc = Array();
+		
+		ds = Ext.create('Ext.data.ArrayStore', {
+			id: 'storeSearchLoc',
+			autoDestroy: true,
+			storeId: 'myDS',
+			data: dataSearchLoc,
+			fields: [ 'id', 'title', 'bounds', 'location', 'viewport', 'types' ]
 		});
+		
+		var win = Ext.getCmp('winSearchLoc');
+		if (!win) {
+			var win = Ext.create('Ext.window.Window', {
+				id: 'winSearchLoc',
+				title: 'Search location',
+				top: 24,
+				width: 400,
+				layout: 'fit',
+				closeAction: 'destroy',
+				items: [
+					panel = Ext.create('Ext.panel.Panel', {
+						border: false,
+						bodyPadding: 10,
+						autoDestroy: true,
+						height: 'auto',
+						layout: 'anchor',
+						items: [{
+							id: 'cbSearchLoc',
+							xtype: 'combo',
+							store: ds,
+							displayField: 'title',
+							typeAhead: false,
+							hideLabel: false,
+							hideTrigger: true,
+							anchor: '100%',
+							labelAlign: 'left',
+							labelSeparator: '',
+							labelWidth: 24,
+							labelStyle: 'margin-top:-4px;',
+							fieldLabel: '<img src="res/icons/markers/country.png" height="24" border="0">',
+							emptyText: 'Type a location to show search result(s)..',
+							listConfig: {
+								loadingText: 'Searching...',
+								emptyText: 'No matching posts found.',
+								getInnerTpl: function() {
+									return	'<span style="width:70%; height:auto; font-weight:bold; font-size:12px; color:blue;">{title}</span><br />' +
+											'<span style="width:30%; padding-left:8px; color:gray; text-transform:capitalize;">&#8226; As: {types}</span>';
+								}
+							},
+							enableKeyEvents: true,
+							listeners: {
+								change: function(self, evnt, objs){
+									$('#map_canvas').gmap3({
+										action: 'getAddress',
+										address: self.getValue(),
+										callback: function(results){
+											if (!results) return;
+											
+											dataSearchLoc.splice(0, dataSearchLoc.length);
+											ds.removeAll(true);
+											
+											var tmpTypes = '';
+											for (var i=0; i < results.length; i++) {
+												if (results[i].types.length > 0) {
+													if (results[i].types.length > 1) {
+														tmpTypes = (results[i].types[0].indexOf('_') > -1) ? results[i].types[0].replace('_','-') : results[i].types[0];
+														
+														for (var n=1; n < results[i].types.length; n++) {
+															tmpTypes += '; ' + ((results[i].types[n].indexOf('_') > -1) ? results[i].types[n].replace('_','-') : results[i].types[n]);
+														}
+													} else {
+														tmpTypes = results[i].types[0].replace('_','-');
+													}
+												} else {
+													tmpTypes = '';
+												}
+												
+												dataSearchLoc[i] = ([
+													i,
+													results[i].formatted_address,
+													results[i].geometry.bounds,
+													results[i].geometry.location,
+													results[i].geometry.viewport,
+													tmpTypes.toProperCase()
+												]);
+											}
+											
+											ds.loadData(dataSearchLoc, false);
+										}
+									});
+								},
+								select: function(el, recs, opts) {
+									setTimeout(function() {
+										$("#map_canvas").gmap3(
+											{	action: 'clear',
+												name: 'marker'
+											},
+											{	action: 'addMarker',
+												latLng: recs[0].data.location,
+												marker: {
+													options: {
+														icon: new google.maps.MarkerImage("res/icons/markers/country.png",null, null, null, new google.maps.Size(21,24)),
+														animation: google.maps.Animation.BOUNCE,
+														bounds: recs[0].data.bounds
+													},
+												},
+												map: {
+													center: recs[0].data.location
+												}
+											}
+										);
+									}, 200);
+									var map = $("#map_canvas").gmap3('get');
+									map.fitBounds(recs[0].data.bounds);
+								}
+							}
+						}]
+					})
+				],
+				listener: {
+					beforeClose: function(pnl, opts){
+						pnl.destroy();
+						((dataSearchLoc) ? dataSearchLoc.splice(0, dataSearchLoc.length) : null);
+						((Ext.getCmp('storeSearchLoc')) ? ds.isDestroyed = true : null);
+					}
+				}
+			});
+			win.showAt(8,8, true);
+			Ext.getCmp('cbSearchLoc').focus(true);
+		} else {
+			((dataSearchLoc) ? dataSearchLoc.splice(0, dataSearchLoc.length) : null);
+			((Ext.getCmp('storeSearchLoc')) ? ds.isDestroyed = true : null);
+			win.close();
+			return;
+		}
 	});
 	
 	/**
 	 * ExtJS:
-	 * Goto default HomeScreen location
+	 * Drawing Circle path/shape on map
 	 */
-	var elToolHome = Ext.getCmp('tbtn_ToolHome');
-	elToolHome.on('click', function(){
-		$('#map_canvas').gmap3({
-			action: 'getAddress',
-			address: 'Bandung, Indonesia', /* this must be the correct home screen value setup */
-			callback: function(results){
-				if (!results) return;
-				
-				var zoomBestFit = 10;
-				$("#map_canvas").gmap3(
-					{	action: 'getMaxZoom',
-						latLng: results[0].geometry.location,
-						callback: function(zoom){ zoomBestFit = zoom; }
-					},
-					{	action: 'clear',
-						name:'marker'
-					},
-					{	action: 'addMarker',
-						latLng: results[0].geometry.location,
-						map: { center: true, zoom: zoomBestFit }
-					}
-				);
-			}
+	var elDrawCircle = Ext.getCmp('tbtn_DrawCircle');
+	elDrawCircle.on('click', function(){
+		var map = $("#map_canvas").gmap3('get');
+		google.maps.event.addListener(map, 'click', function(event) {
+			//console.log(event.latLng.toString());
 		});
+		
+		/*
+		if (!circle) {
+			var circle = new google.maps.drawing.DrawingManager({
+				drawingMode: google.maps.drawing.OverlayType.CIRCLE,
+				drawingControl: false,
+				circleOptions: {
+					fillColor: '#ffff00',
+					fillOpacity: 0.5,
+					strokeWeight: 2,
+					clickable: true,
+					editable: true,
+					radius: 1600,
+					zIndex: 1
+				}
+			});
+		}
+		*/
 	});
 	
 	/**
@@ -524,6 +639,53 @@ Ext.onReady(function(){
 		winRout.show();
 		formRout.getForm().findField('edOrigRout').focus();
 	});
+	
+	
+	/**
+	 * ExtJS:
+	 * Get on drop point Geo Coordinates
+	 */
+	var elToolCoordinate = Ext.getCmp('tbtn_ToolCoordinate');
+	elToolCoordinate.on('click', function() {
+		$('#map_canvas').gmap3({
+			action: 'clear',
+			name: 'marker',
+			tag: 'coor'
+		}, {
+			action: 'addMarker',
+			address: 'Indonesia', /* this must be current position with droped point on center */
+			map: {
+				center: true,
+				//mapTypeId: google.maps.MapTypeId.HYBRID
+			},
+			marker: {
+				tag: 'coor',
+				options: {
+					draggable:true
+				},
+				events: {
+					dragend: function(marker) {
+						$(this).gmap3({
+							action: 'getAddress',
+							latLng: marker.getPosition(),
+							callback: function(results) {
+								var map = $(this).gmap3('get'),
+									infowindow = $(this).gmap3({action:'get', name:'infowindow'}),
+									content = results && results[1] ? results && results[1].formatted_address : 'no address';
+								if (infowindow) {
+									infowindow.open(map, marker);
+									infowindow.setContent(content);
+								} else {
+									$(this).gmap3({action:'addinfowindow', anchor:marker, options:{content: content}});
+								}
+							}
+						});
+					}
+				}
+			}
+		});
+	});
+	
 	
 	/**
 	 * ExtJS:
