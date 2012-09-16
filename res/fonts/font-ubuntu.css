@@ -1,0 +1,11 @@
+@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono|Ubuntu|Ubuntu+Condensed);
+
+.ubuntu-mono {
+    font-family: 'Ubuntu Mono', sans-serif;
+}
+.ubuntu {
+    font-family: 'Ubuntu', sans-serif;
+}
+.ubuntu-condensed {
+    font-family: 'Ubuntu Condensed', sans-serif;
+}
