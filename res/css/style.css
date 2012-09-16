@@ -1,4 +1,5 @@
-@import url('../fonts/stylesheet.css');
+@import url('../fonts/font-ubuntu.css');
+/*@import url('../fonts/font-collab.css');*/
 
 /* HTML5 ✰ Boilerplate*/
 ::-moz-selection { background: #78c6bc; color: #fff; text-shadow: none; }
@@ -23,7 +24,7 @@ svg {overflow:hidden}
 
 /* Primary Styles */
 body {
-	background:#eeede6;
+    background:#eeede6;
 	/*
 	font-family:Colaborate, Helvetica, Arial, sans-serif;
 	color:#747047

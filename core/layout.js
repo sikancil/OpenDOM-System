@@ -6,7 +6,7 @@ Ext.require(['Ext.*']);
 
 
 Ext.onReady(function(){
-	/*** Init App as Loader Mask ***/
+    /*** Init App as Loader Mask ***/
 	var firebugWarning = function () {
 		var cp = Ext.create('Ext.state.CookieProvider');
 		
@@ -299,12 +299,16 @@ Ext.onReady(function(){
 				}, {
 					id: 'tbtn_ToolAddress',
 					iconCls: 'get-address16',
+					enableToggle: true,
+					toggleGroup: 'tooladdress',
 					tooltip: {
 						text: 'Get street address on drop point'
 					}
 				}, {
 					id: 'tbtn_ToolCoordinate',
 					iconCls: 'get-coordinate16',
+					enableToggle: true,
+					toggleGroup: 'toolcoordinate',
 					tooltip: {
 						text: 'Get coordinates on drop point'
 					}
